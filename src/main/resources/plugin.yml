@@ -1,0 +1,9 @@
+main: nexus.slime.deathsentence.DeathSentencePlugin
+api-version: '1.13'
+
+name: DeathSentence
+description: An improved death messages plugin that tries to give as much control as possible, while providing reasonable fallbacks.
+version: $version
+authors:
+  - "Rodney_Mc_Kay"
+  - "Gizer"

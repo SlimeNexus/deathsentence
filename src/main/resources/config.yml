@@ -1,0 +1,48 @@
+prefix: ""
+cooldown: 60
+
+natural_death:
+  cactus:
+    - "%player% touched one prickly boy."
+    - "%player% touched one prickly boy."
+    - "%player% touched one prickly boy."
+    - "%player% touched one prickly boy."
+    - message: "%player_dimension% touched one prickly boy."
+      weight: 0.01
+      world_type: "nether"
+
+entity_death:
+  default:
+    generic:
+      normal:
+        - "%player% was killed by %attacker%."
+      with_special_item:
+        - "%player% was killed by %attacker% using %item%."
+    melee:
+      normal:
+        - "%player% was slain."
+        - "%player% was slain by %attacker%."
+      with_special_item:
+        - "%player% was slain by %attacker% using %item%."
+  player:
+    generic:
+      normal:
+        - ""
+    arrow:
+      normal:
+        - "%player% was shot by %attacker%."
+      with_special_item:
+        - "%player% was shot by %attacker% using %item%."
+    player_attack:
+      normal:
+        - "%player% was killed by %attacker%."
+      with_special_item:
+        - "%player% was killed by %attacker% using %item%."
+  zombie:
+    generic:
+      normal:
+        - "%player% was killed by zombie"
+    thorns:
+      normal:
+        - "%player% was prickled to death by thorns"
+        - "%player% discovered that %attacker% has thorns"
