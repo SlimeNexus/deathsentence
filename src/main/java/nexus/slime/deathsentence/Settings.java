@@ -1,20 +1,54 @@
 package nexus.slime.deathsentence;
 
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import nexus.slime.deathsentence.damage.DamageSources;
+import nexus.slime.deathsentence.damage.DamageType;
 import nexus.slime.deathsentence.message.DeathMessage;
+import nexus.slime.deathsentence.message.EntityDeathMessagePool;
+import nexus.slime.deathsentence.message.NaturalDeathMessagePool;
+import nexus.slime.deathsentence.nms.Nms;
+import nexus.slime.deathsentence.nms.NmsV1_20_4;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.EntityType;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Settings {
+    public static void generateDebugSettings(Path path) throws IOException {
+        var config = YamlConfiguration.loadConfiguration(path.toFile());
+
+        // General settings
+        config.set("prefix", "");
+        config.set("cooldown_seconds", 0);
+        config.set("fallback_message", "");
+
+        // Natural deaths
+        for (DamageType damageType : DamageSources.listDamageTypes()) {
+            config.set("natural_death." + damageType.key().asMinimalString(), List.of("[NATURAL_DEATH] PLAYER: '%player%' - DAMAGE_TYPE: '" + damageType.key().asString() + "'"));
+        }
+
+        // Entity death & special item death
+        for (EntityType entityType : Registry.ENTITY_TYPE) {
+            var entityTypeKey = Objects.requireNonNull(Registry.ENTITY_TYPE.getKey(entityType));
+
+            for (DamageType damageType : DamageSources.listDamageTypes()) {
+                config.set("entity_death." + entityTypeKey.asMinimalString() + "." + damageType.key().asMinimalString(), List.of("[ENTITY_DEATH] PLAYER: '%player%' - ENTITY: '%attacker%' - ENTITY_TYPE: '" + entityTypeKey.asString() + "' - DAMAGE_TYPE: '" + damageType.key().asString() + "'"));
+                config.set("special_item_death." + entityTypeKey.asMinimalString() + "." + damageType.key().asMinimalString(), List.of("[SPECIAL_ITEM_DEATH] PLAYER: '%player%' - ENTITY: '%attacker%' - ITEM: '%item%' - ENTITY_TYPE: '" + entityTypeKey.asString() + "' - DAMAGE_TYPE: '" + damageType.key().asString() + "'"));
+            }
+        }
+
+        config.save(path.toFile());
+    }
+
     public static Settings loadSettings(DeathSentencePlugin plugin) throws IOException {
         var dataFolder = plugin.getDataFolder().toPath();
         Path configFile = dataFolder.resolve("config.yml");
@@ -35,7 +69,7 @@ public class Settings {
         return new Settings(config);
     }
 
-    private static DeathMessage readDeathMessage(Map<?, ?> map) throws IOException {
+    private static DeathMessage readMessage(Map<?, ?> map) throws IOException {
         // message
         var messageObject = map.get("message");
 
@@ -80,7 +114,7 @@ public class Settings {
         return new DeathMessage(message, weight, world, worldType, permission);
     }
 
-    private static List<DeathMessage> readDeathMessageSet(List<?> list) throws IOException {
+    private static List<DeathMessage> readMessageList(List<?> list) throws IOException {
         if (list == null) {
             throw new IOException("List cannot be null!");
         }
@@ -89,7 +123,7 @@ public class Settings {
 
         for (Object object : list) {
             if (object instanceof Map<?, ?> map) {
-                messages.add(readDeathMessage(map));
+                messages.add(readMessage(map));
             } else {
                 var message = MiniMessage.miniMessage().deserialize(object.toString());
                 messages.add(new DeathMessage(message));
@@ -99,55 +133,128 @@ public class Settings {
         return messages;
     }
 
-    private final Map<String, List<DeathMessage>> naturalDeathMessages;
-    private final Map<String, Map<String, List<DeathMessage>>> entityDeathMessages;
+    private static Map<DamageType, List<DeathMessage>> readDamageMessageMap(ConfigurationSection section) throws IOException {
+        Map<DamageType, List<DeathMessage>> byDamage = new HashMap<>();
+
+        for (String key : section.getKeys(false)) {
+            var innerList = section.getList(key);
+
+            if (innerList == null) {
+                continue;
+            }
+
+            DamageType type = DamageType.fromKey(key.toLowerCase());
+            var messageList = readMessageList(innerList);
+
+            byDamage.put(type, messageList);
+        }
+
+        return byDamage;
+    }
+
+    private static Map<EntityType, Map<DamageType, List<DeathMessage>>> readEntityDamageMessageMap(ConfigurationSection section) throws IOException {
+        Map<EntityType, Map<DamageType, List<DeathMessage>>> byEntity = new HashMap<>();
+
+        for (String key : section.getKeys(false)) {
+            var innerSection = section.getConfigurationSection(key);
+
+            if (innerSection == null) {
+                continue;
+            }
+
+            EntityType type = key.equalsIgnoreCase("default")
+                    ? EntityDeathMessagePool.CUSTOM_ENTITY_TYPE
+                    : Registry.ENTITY_TYPE.get(Objects.requireNonNull(NamespacedKey.fromString(key.toLowerCase())));
+
+            var byDamage = readDamageMessageMap(innerSection);
+
+            byEntity.put(type, byDamage);
+        }
+
+        return byEntity;
+    }
+
+    private final Component prefix;
+    private final int cooldownSeconds;
+    private final Component fallbackMessage;
+
+    private final NaturalDeathMessagePool naturalPool;
+    private final EntityDeathMessagePool entityPool;
+    private final EntityDeathMessagePool specialItemPool;
 
     private Settings(FileConfiguration config) throws IOException {
+        // Prefix
+        var prefixString = config.getString("prefix");
+
+        if (prefixString == null) {
+            throw new IOException("'prefix' is required in config!");
+        }
+
+        prefix = MiniMessage.miniMessage().deserialize(prefixString);
+
+        // Cooldown
+        cooldownSeconds = config.getInt("cooldown_seconds");
+
+        // Fallback message
+        var fallbackMessageString = config.getString("fallback_message");
+
+        if (fallbackMessageString == null) {
+            throw new IOException("'fallback_message' is required in config!");
+        }
+
+        fallbackMessage = MiniMessage.miniMessage().deserialize(fallbackMessageString);
+
         // Natural death messages
-        naturalDeathMessages = new HashMap<>();
         var naturalSection = config.getConfigurationSection("natural_death");
 
         if (naturalSection == null) {
             throw new IOException("Could not find the natural_death section!");
         }
 
-        for (String damageTypeId : naturalSection.getKeys(false)) {
-            var messages = readDeathMessageSet(naturalSection.getList(damageTypeId));
-            naturalDeathMessages.put(damageTypeId, messages);
-        }
+        naturalPool = new NaturalDeathMessagePool(readDamageMessageMap(naturalSection));
 
         // Entity death messages
-        entityDeathMessages = new HashMap<>();
         var entitySection = config.getConfigurationSection("entity_death");
 
         if (entitySection == null) {
             throw new IOException("Could not find the entity_death section!");
         }
 
-        for (String entityTypeId : entitySection.getKeys(false)) {
-            var damageSection = entitySection.getConfigurationSection(entityTypeId);
-            Map<String, List<DeathMessage>> damageMap = new HashMap<>();
+        entityPool = new EntityDeathMessagePool(readEntityDamageMessageMap(entitySection));
 
-            if (damageSection == null) {
-                throw new IOException("Could not find a section for entity_death." + entityTypeId);
-            }
+        // Special item messages
+        var specialItemSection = config.getConfigurationSection("special_item_death");
 
-            for (String damageTypeId : damageSection.getKeys(false)) {
-                var messages = readDeathMessageSet(damageSection.getList(damageTypeId));
-                damageMap.put(damageTypeId, messages);
-            }
-
-            entityDeathMessages.put(entityTypeId, damageMap);
+        if (specialItemSection == null) {
+            throw new IOException("Could not find the special_item_death section!");
         }
+
+        specialItemPool = new EntityDeathMessagePool(readEntityDamageMessageMap(specialItemSection));
     }
 
-    public List<DeathMessage> getNaturalDeathMessage(String damageTypeId) {
-        return naturalDeathMessages.get(damageTypeId);
+    public Component getPrefix() {
+        return prefix;
     }
 
-    public List<DeathMessage> getEntityDeathMessage(String entityTypeId, String damageTypeId) {
-        var map = entityDeathMessages.get(entityTypeId);
-        if (map == null) return null;
-        return map.get(damageTypeId);
+    public int getCooldownSeconds() {
+        Nms nms = new NmsV1_20_4();
+        return cooldownSeconds;
     }
+
+    public Component getFallbackMessage() {
+        return fallbackMessage;
+    }
+
+    public NaturalDeathMessagePool getNaturalPool() {
+        return naturalPool;
+    }
+
+    public EntityDeathMessagePool getEntityPool() {
+        return entityPool;
+    }
+
+    public EntityDeathMessagePool getSpecialItemPool() {
+        return specialItemPool;
+    }
+
 }

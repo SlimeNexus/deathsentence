@@ -7,3 +7,9 @@ version: $version
 authors:
   - "Rodney_Mc_Kay"
   - "Gizer"
+
+commands:
+  deathsentence:
+    usage: "/deathsentence <generate_full_config|reload>"
+    permission: deathsentence.admin
+    description: Command to configure settings for the death sentence plugin

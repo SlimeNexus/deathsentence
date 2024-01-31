@@ -1,48 +1,83 @@
-prefix: ""
-cooldown: 60
+#
+#  _____  ______       _______ _    _
+# |  __ \|  ____|   /\|__   __| |  | |
+# | |  | | |__     /  \  | |  | |__| |
+# | |  | |  __|   / /\ \ | |  |  __  |
+# | |__| | |____ / ____ \| |  | |  | |
+# |_____/|______/_/  _ \_\_|__|_|__|_|_   _  _____ ______
+#  / ____|  ____| \ | |__   __|  ____| \ | |/ ____|  ____|
+# | (___ | |__  |  \| |  | |  | |__  |  \| | |    | |__
+#  \___ \|  __| | . ` |  | |  |  __| | . ` | |    |  __|
+#  ____) | |____| |\  |  | |  | |____| |\  | |____| |____
+# |_____/|______|_| \_|  |_|  |______|_| \_|\_____|______|
+#
+# Config generated with plugin version: @version@
+#
 
+# A central prefix for all death messages
+# (administrative plugin messages have no prefix)
+prefix: "<bold><red>DEATH</red></bold> <dark_gray>|</dark_gray> "
+
+# A cooldown in seconds for when the next death message can appear after a player died.
+# This cooldown can be bypassed with permission "deathsentence.bypass.cooldown"
+cooldown_seconds: 60
+
+# A fallback message when no other messages are available.
+fallback_message: "%player% died."
+
+# A map of natural death messages categorized by damage type.
+# A list of vanilla damage types can be found here: https://minecraft.wiki/w/Damage_type
+# This category also serves as a fallback when the player these belong to cannot be identified.
 natural_death:
+
+  # Example entry: Damage caused by a cactus
   cactus:
-    - "%player% touched one prickly boy."
-    - "%player% touched one prickly boy."
-    - "%player% touched one prickly boy."
-    - "%player% touched one prickly boy."
-    - message: "%player_dimension% touched one prickly boy."
-      weight: 0.01
+    # Regular death message
+    - "%player% prickled themselves to death on a cactus."
+
+    # Advanced death message
+    - # Actual message
+      message: "%player% touched one prickly boy."
+      # Weight option controlling how likely this message is to be chosen
+      # Since this message has a weight of 0.1, it's less likely to appear
+      weight: 0.1
+      # Death message should only work in the nether
       world_type: "nether"
+      # Death message should only appear if the player has permission node "example.death.message"
+      permission: "example.death.message"
 
 entity_death:
   default:
     generic:
-      normal:
-        - "%player% was killed by %attacker%."
-      with_special_item:
-        - "%player% was killed by %attacker% using %item%."
+      - "%player% was killed by %attacker%."
     melee:
-      normal:
-        - "%player% was slain."
-        - "%player% was slain by %attacker%."
-      with_special_item:
-        - "%player% was slain by %attacker% using %item%."
+      - "%player% was slain."
+      - "%player% was slain by %attacker%."
+    thorns:
+      - "%player% discovered that %attacker% has thorns"
   player:
     generic:
-      normal:
-        - ""
+      - ""
     arrow:
-      normal:
-        - "%player% was shot by %attacker%."
-      with_special_item:
-        - "%player% was shot by %attacker% using %item%."
+      - "%player% was shot by %attacker%."
     player_attack:
-      normal:
-        - "%player% was killed by %attacker%."
-      with_special_item:
-        - "%player% was killed by %attacker% using %item%."
+      - "%player% was killed by %attacker%."
   zombie:
     generic:
-      normal:
-        - "%player% was killed by zombie"
+      - "%player% was killed by zombie"
+    mob_attack:
+      - "%player% was zombified."
     thorns:
-      normal:
-        - "%player% was prickled to death by thorns"
-        - "%player% discovered that %attacker% has thorns"
+      - "%player% was prickled to death by thorns"
+
+special_item_death:
+  default:
+    generic:
+      - "%player% was killed by %attacker% using %item%."
+    melee:
+      - "%player% was slain by %attacker% using %item%."
+  player:
+    arrow:
+      - "%player% was shot by %attacker% using %item%."
+    player_attack:
+      - "%player% was killed by %attacker% using %item%."

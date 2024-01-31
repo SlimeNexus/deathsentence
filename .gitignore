@@ -1,9 +1,13 @@
-/.gradle/
-/build/
+### Local Test Server ###
+/run/
+
+### Gradle ###
+.gradle/
+build/
 
 ### IntelliJ IDEA ###
-/.idea/
-/out/
+.idea/
+out/
 *.iws
 *.iml
 *.ipr
@@ -17,18 +21,16 @@
 .springBeans
 .sts4-cache
 bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
 
 ### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
 
 ### VS Code ###
-/.vscode/
+.vscode/
 
 ### Mac OS ###
 .DS_Store
