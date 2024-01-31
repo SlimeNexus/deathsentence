@@ -8,7 +8,11 @@ public class NmsProvider {
 
         return switch (bukkitVersion) {
             case "1.20.4-R0.1-SNAPSHOT" -> new NmsV1_20_4();
-            default -> new FallbackNms();
+            case "1.20.2-R0.1-SNAPSHOT" -> new NmsV1_20_2();
+            case "1.20.1-R0.1-SNAPSHOT" -> new NmsV1_20_1();
+            case "1.20-R0.1-SNAPSHOT" -> new NmsV1_20();
+            case "1.19.4-R0.1-SNAPSHOT" -> new NmsV1_19_4();
+            default -> null;
         };
     }
 }

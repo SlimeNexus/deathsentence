@@ -21,8 +21,7 @@ public class FallbackNms implements Nms {
         }
 
         var cause = event.getCause();
-
-        return switch (cause) {
+        var damageType = switch (cause) {
             case BLOCK_EXPLOSION, ENTITY_EXPLOSION -> DamageType.EXPLOSION;
             case CONTACT -> DamageType.CACTUS;
             case CRAMMING -> DamageType.CRAMMING;
@@ -50,5 +49,7 @@ public class FallbackNms implements Nms {
             case WORLD_BORDER -> DamageType.OUTSIDE_BORDER;
             default -> DamageType.GENERIC;
         };
+
+        return damageType.getKey();
     }
 }

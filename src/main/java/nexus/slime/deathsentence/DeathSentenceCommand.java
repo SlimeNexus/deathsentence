@@ -20,8 +20,15 @@ public record DeathSentenceCommand(
         }
 
         if (args[0].equalsIgnoreCase("generate_debug_config")) {
+            var registry = plugin.getCombatTracker().getDamageTypeRegistry();
+
+            if (registry == null) {
+                sender.sendMessage(Component.text("Damage type registry is unavailable!", NamedTextColor.RED));
+                return true;
+            }
+
             try {
-                Settings.generateDebugSettings(plugin.getDataFolder().toPath().resolve("debug_config.yml"));
+                Settings.generateDebugSettings(registry, plugin.getDataFolder().toPath().resolve("debug_config.yml"));
             } catch (IOException e) {
                 sender.sendMessage(Component.text("Could not generate debug config! See console for details!", NamedTextColor.RED));
                 plugin.getLogger().log(Level.SEVERE, "Could not generate debug config!", e);

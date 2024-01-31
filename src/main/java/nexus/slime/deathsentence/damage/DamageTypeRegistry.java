@@ -12,20 +12,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public class DamageTypeRegistry implements Registry<DamageType> {
-    private record KeyedDamageType(
-            NamespacedKey key
-    ) implements DamageType {
-        @Override
-        public @NotNull NamespacedKey getKey() {
-            return key;
-        }
-
-        @Override
-        public String toString() {
-            return key.toString();
-        }
-    }
-
     public static DamageTypeRegistry fromRawTypes(List<NamespacedKey> rawTypes) {
         Map<NamespacedKey, DamageType> types = new HashMap<>();
 

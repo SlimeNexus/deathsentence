@@ -2,13 +2,10 @@ package nexus.slime.deathsentence;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import nexus.slime.deathsentence.damage.DamageSources;
 import nexus.slime.deathsentence.damage.DamageType;
 import nexus.slime.deathsentence.message.DeathMessage;
 import nexus.slime.deathsentence.message.EntityDeathMessagePool;
 import nexus.slime.deathsentence.message.NaturalDeathMessagePool;
-import nexus.slime.deathsentence.nms.Nms;
-import nexus.slime.deathsentence.nms.NmsV1_20_4;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.configuration.ConfigurationSection;
@@ -23,7 +20,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class Settings {
-    public static void generateDebugSettings(Path path) throws IOException {
+    public static void generateDebugSettings(Registry<DamageType> damageTypeRegistry, Path path) throws IOException {
         var config = YamlConfiguration.loadConfiguration(path.toFile());
 
         // General settings
@@ -32,7 +29,7 @@ public class Settings {
         config.set("fallback_message", "");
 
         // Natural deaths
-        for (DamageType damageType : DamageSources.listDamageTypes()) {
+        for (DamageType damageType : damageTypeRegistry) {
             config.set("natural_death." + damageType.key().asMinimalString(), List.of("[NATURAL_DEATH] PLAYER: '%player%' - DAMAGE_TYPE: '" + damageType.key().asString() + "'"));
         }
 
@@ -40,7 +37,7 @@ public class Settings {
         for (EntityType entityType : Registry.ENTITY_TYPE) {
             var entityTypeKey = Objects.requireNonNull(Registry.ENTITY_TYPE.getKey(entityType));
 
-            for (DamageType damageType : DamageSources.listDamageTypes()) {
+            for (DamageType damageType : damageTypeRegistry) {
                 config.set("entity_death." + entityTypeKey.asMinimalString() + "." + damageType.key().asMinimalString(), List.of("[ENTITY_DEATH] PLAYER: '%player%' - ENTITY: '%attacker%' - ENTITY_TYPE: '" + entityTypeKey.asString() + "' - DAMAGE_TYPE: '" + damageType.key().asString() + "'"));
                 config.set("special_item_death." + entityTypeKey.asMinimalString() + "." + damageType.key().asMinimalString(), List.of("[SPECIAL_ITEM_DEATH] PLAYER: '%player%' - ENTITY: '%attacker%' - ITEM: '%item%' - ENTITY_TYPE: '" + entityTypeKey.asString() + "' - DAMAGE_TYPE: '" + damageType.key().asString() + "'"));
             }
@@ -66,7 +63,7 @@ public class Settings {
 
         FileConfiguration config = YamlConfiguration.loadConfiguration(configFile.toFile());
 
-        return new Settings(config);
+        return new Settings(plugin, config);
     }
 
     private static DeathMessage readMessage(Map<?, ?> map) throws IOException {
@@ -133,7 +130,7 @@ public class Settings {
         return messages;
     }
 
-    private static Map<DamageType, List<DeathMessage>> readDamageMessageMap(ConfigurationSection section) throws IOException {
+    private static Map<DamageType, List<DeathMessage>> readDamageMessageMap(DeathSentencePlugin plugin, ConfigurationSection section) throws IOException {
         Map<DamageType, List<DeathMessage>> byDamage = new HashMap<>();
 
         for (String key : section.getKeys(false)) {
@@ -143,8 +140,13 @@ public class Settings {
                 continue;
             }
 
-            DamageType type = DamageType.fromKey(key.toLowerCase());
             var messageList = readMessageList(innerList);
+            var type = plugin.getCombatTracker().getDamageType(NamespacedKey.fromString(key.toLowerCase()));
+
+            if (type == null) {
+                plugin.getLogger().warning("Unknown damage type " + key + " found in config! Ignoring...");
+                continue;
+            }
 
             byDamage.put(type, messageList);
         }
@@ -152,7 +154,7 @@ public class Settings {
         return byDamage;
     }
 
-    private static Map<EntityType, Map<DamageType, List<DeathMessage>>> readEntityDamageMessageMap(ConfigurationSection section) throws IOException {
+    private static Map<EntityType, Map<DamageType, List<DeathMessage>>> readEntityDamageMessageMap(DeathSentencePlugin plugin, ConfigurationSection section) throws IOException {
         Map<EntityType, Map<DamageType, List<DeathMessage>>> byEntity = new HashMap<>();
 
         for (String key : section.getKeys(false)) {
@@ -166,7 +168,7 @@ public class Settings {
                     ? EntityDeathMessagePool.CUSTOM_ENTITY_TYPE
                     : Registry.ENTITY_TYPE.get(Objects.requireNonNull(NamespacedKey.fromString(key.toLowerCase())));
 
-            var byDamage = readDamageMessageMap(innerSection);
+            var byDamage = readDamageMessageMap(plugin, innerSection);
 
             byEntity.put(type, byDamage);
         }
@@ -182,7 +184,7 @@ public class Settings {
     private final EntityDeathMessagePool entityPool;
     private final EntityDeathMessagePool specialItemPool;
 
-    private Settings(FileConfiguration config) throws IOException {
+    private Settings(DeathSentencePlugin plugin, FileConfiguration config) throws IOException {
         // Prefix
         var prefixString = config.getString("prefix");
 
@@ -211,7 +213,7 @@ public class Settings {
             throw new IOException("Could not find the natural_death section!");
         }
 
-        naturalPool = new NaturalDeathMessagePool(readDamageMessageMap(naturalSection));
+        naturalPool = new NaturalDeathMessagePool(readDamageMessageMap(plugin, naturalSection));
 
         // Entity death messages
         var entitySection = config.getConfigurationSection("entity_death");
@@ -220,7 +222,7 @@ public class Settings {
             throw new IOException("Could not find the entity_death section!");
         }
 
-        entityPool = new EntityDeathMessagePool(readEntityDamageMessageMap(entitySection));
+        entityPool = new EntityDeathMessagePool(readEntityDamageMessageMap(plugin, entitySection));
 
         // Special item messages
         var specialItemSection = config.getConfigurationSection("special_item_death");
@@ -229,7 +231,7 @@ public class Settings {
             throw new IOException("Could not find the special_item_death section!");
         }
 
-        specialItemPool = new EntityDeathMessagePool(readEntityDamageMessageMap(specialItemSection));
+        specialItemPool = new EntityDeathMessagePool(readEntityDamageMessageMap(plugin, specialItemSection));
     }
 
     public Component getPrefix() {
@@ -237,7 +239,6 @@ public class Settings {
     }
 
     public int getCooldownSeconds() {
-        Nms nms = new NmsV1_20_4();
         return cooldownSeconds;
     }
 

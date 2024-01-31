@@ -4,6 +4,7 @@ plugins {
     id("java")
     id("io.papermc.paperweight.userdev") version "1.5.11" apply false
     id("xyz.jpenilla.run-paper") version "2.2.2"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "nexus.slime"
@@ -18,7 +19,7 @@ allprojects {
     }
 
     dependencies {
-        implementation("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
+        compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     }
 }
 
@@ -32,14 +33,27 @@ dependencies {
 }
 
 tasks {
-    jar {
-        from(sourceSets.main.get().output)
+    assemble {
+        dependsOn(shadowJar)
+    }
 
-        // Include NMS classes in final jar.
-        // Not pretty, but it works.
-        rootProject.project(":nms").subprojects.forEach {
-            from(it.sourceSets.main.get().output)
-        }
+    jar {
+        archiveClassifier = "incomplete"
+    }
+
+    shadowJar {
+        archiveClassifier = null
+
+        // Not very pretty, but oh well.
+        // If anyone has a better idea of how to make paperweight userdev
+        // work with this repo structure, *please* tell me :D
+        rootProject.project(":nms")
+            .subprojects
+            .mapNotNull { it.tasks.findByName("reobfJar") }
+            .forEach {
+                dependsOn(it)
+                from(it.outputs)
+            }
     }
 }
 

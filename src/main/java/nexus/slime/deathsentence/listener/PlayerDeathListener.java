@@ -5,7 +5,6 @@ import net.kyori.adventure.text.TextReplacementConfig;
 import nexus.slime.deathsentence.DeathSentencePlugin;
 import nexus.slime.deathsentence.Settings;
 import nexus.slime.deathsentence.damage.DamageSource;
-import nexus.slime.deathsentence.damage.DamageSources;
 import nexus.slime.deathsentence.message.DeathMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -28,7 +27,7 @@ public record PlayerDeathListener(
                 return;
             }
 
-            var damageSource = DamageSources.getLastDamageSource(player);
+            var damageSource = plugin.getCombatTracker().getLastDamageSource(player);
 
             if (damageSource == null) {
                 plugin.getLogger().severe("Could not find damage source for dead player!");
