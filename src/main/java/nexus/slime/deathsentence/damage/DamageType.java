@@ -1,7 +1,6 @@
 package nexus.slime.deathsentence.damage;
 
 import org.bukkit.Keyed;
-import org.bukkit.NamespacedKey;
 
 public interface DamageType extends Keyed {
     DamageType GENERIC = KeyedDamageType.fromKey("generic");
