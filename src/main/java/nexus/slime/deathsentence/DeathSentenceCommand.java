@@ -36,6 +36,7 @@ public record DeathSentenceCommand(
             }
 
             sender.sendMessage(Component.text("Debug config successfully generated!", NamedTextColor.GREEN));
+            return true;
         }
 
         if (args[0].equalsIgnoreCase("reload")) {
@@ -48,8 +49,9 @@ public record DeathSentenceCommand(
             }
 
             sender.sendMessage(Component.text("Config reloaded successfully!", NamedTextColor.GREEN));
+            return true;
         }
 
-        return true;
+        return false;
     }
 }
