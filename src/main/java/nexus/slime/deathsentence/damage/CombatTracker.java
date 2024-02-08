@@ -114,7 +114,7 @@ public class CombatTracker {
             damageType = DamageType.FIREBALL;
         }
 
-        // When we tested this, unowned fireballs were always damage type "magic" and ones with a
+        // When we tested this, unowned wither skulls were always damage type "magic" and ones with a
         // corresponding wither were listed under "player_explosion". To simplify, we just always
         // "wither_skull" as a damage type if the player was killed by a wither skull.
         if (originalEntity instanceof WitherSkull) {
