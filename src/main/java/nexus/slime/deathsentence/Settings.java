@@ -26,6 +26,7 @@ public class Settings {
         // General settings
         config.set("prefix", "");
         config.set("cooldown_seconds", 0);
+        config.set("log_deaths", true);
         config.set("fallback_message", "");
 
         // Natural deaths
@@ -178,6 +179,7 @@ public class Settings {
 
     private final Component prefix;
     private final int cooldownSeconds;
+    private final boolean logDeaths;
     private final Component fallbackMessage;
 
     private final NaturalDeathMessagePool naturalPool;
@@ -196,6 +198,9 @@ public class Settings {
 
         // Cooldown
         cooldownSeconds = config.getInt("cooldown_seconds");
+
+        // Log deaths
+        logDeaths = config.getBoolean("log_deaths");
 
         // Fallback message
         var fallbackMessageString = config.getString("fallback_message");
@@ -240,6 +245,10 @@ public class Settings {
 
     public int getCooldownSeconds() {
         return cooldownSeconds;
+    }
+
+    public boolean isLogDeaths() {
+        return logDeaths;
     }
 
     public Component getFallbackMessage() {

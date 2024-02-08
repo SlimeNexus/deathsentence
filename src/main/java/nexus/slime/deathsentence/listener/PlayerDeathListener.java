@@ -34,13 +34,44 @@ public record PlayerDeathListener(
                 return;
             }
 
+            if (plugin.getSettings().isLogDeaths()) {
+                plugin.getLogger().info(getLogMessage(player, damageSource));
+            }
+
+            if (plugin.getCombatTracker().hasDeathMessageCooldown(player)) {
+                return;
+            }
+
             var deathMessage = findDeathMessage(player, damageSource);
             var chatMessage = constructChatMessage(deathMessage, player, damageSource);
 
+            plugin.getCombatTracker().setDeathMessageCooldown(player);
             Bukkit.getServer().sendMessage(chatMessage);
-            // TODO: Expand
-            plugin.getLogger().info(player.getName() + " died in " + player.getWorld().getName() + " at " + player.getLocation().getBlockX() + "/" + player.getLocation().getBlockY() + "/" + player.getLocation().getBlockZ() + " (Cause: " + damageSource.damageType() + ")");
         });
+    }
+
+    public String getLogMessage(Player player, DamageSource source) {
+        var damageType = source.damageType();
+        var entity = source.causingEntity();
+        String entityMessage = null;
+
+        if (entity != null) {
+            if (entity instanceof Player) {
+                entityMessage = "Killer: " + entity.getName();
+            } else {
+                entityMessage = "Killer: " + entity.getType().getKey() + ", Killer UUID: " + entity.getUniqueId();
+            }
+        }
+
+        return player.getName()
+                + " died in world " + player.getWorld().getName()
+                + " (type: " + player.getWorld().getEnvironment().name()
+                + ") at " + player.getLocation().getBlockX()
+                + "/" + player.getLocation().getBlockY()
+                + "/" + player.getLocation().getBlockZ()
+                + " (Damage type: " + damageType
+                + (entityMessage != null ? ", " + entityMessage : "")
+                + ")";
     }
 
     private Component constructChatMessage(DeathMessage message, Player player, DamageSource context) {

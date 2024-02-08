@@ -22,6 +22,9 @@ prefix: "<bold><red>DEATH</red></bold> <dark_gray>|</dark_gray> "
 # This cooldown can be bypassed with permission "deathsentence.bypass.cooldown"
 cooldown_seconds: 60
 
+# Whether to print a detailed message to console when a player dies.
+log_deaths: true
+
 #
 # This plugin allows you to configure death messages for very specific circumstances.
 # This freedom also means that it's very hard to cover all the possible ways in which

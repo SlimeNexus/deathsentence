@@ -8,7 +8,9 @@ import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.projectiles.ProjectileSource;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 public class CombatTracker {
@@ -28,9 +30,26 @@ public class CombatTracker {
     private final DeathSentencePlugin plugin;
     private final Registry<DamageType> damageTypeRegistry;
 
+    private final Set<UUID> playersOnCooldown = new HashSet<>();
+
     private CombatTracker(DeathSentencePlugin plugin, Registry<DamageType> damageTypeRegistry) {
         this.plugin = plugin;
         this.damageTypeRegistry = damageTypeRegistry;
+    }
+
+    public void setDeathMessageCooldown(Player player) {
+        UUID uuid = player.getUniqueId();
+        playersOnCooldown.add(uuid);
+
+        plugin.getServer().getScheduler().runTaskLater(
+                plugin,
+                () -> playersOnCooldown.remove(uuid),
+                plugin.getSettings().getCooldownSeconds() * 20L
+        );
+    }
+
+    public boolean hasDeathMessageCooldown(Player player) {
+        return playersOnCooldown.contains(player.getUniqueId());
     }
 
     public Registry<DamageType> getDamageTypeRegistry() {
@@ -77,6 +96,20 @@ public class CombatTracker {
             damageSource = new DamageSource(DamageType.EXPLOSION, damageSource.causingEntity(), damageSource.specialItem());
         }
 
+        // TODO: The "unattributed_fireball" damage type is kindof goofy, we might wanna replace it with
+        //  just being a regular "fireball", just without a causing entity.
+        //  Same with indirect_magic, maybe?
+        //  Same with mob_attack_no_aggro, maybe?
+        //  Do something special for hunger given from a husk?
+        //  Do something special for wither skeletons giving you wither effect?
+        //  Wolves belonging to someone?
+
+        // TODO: If the player is killed by a wither skull, the damage type should be wither skull all the time
+        //  Note: This requires rewriting this method, so that we know the original entity and not the causing one
+
+        // TODO: There is an extra case when an arrow of harming does magic damage, which is not attributed to the
+        //  entity that shot the arrow, because it is (probably) not applied in the same tick
+
         return damageSource;
     }
 
@@ -88,6 +121,9 @@ public class CombatTracker {
             case ENDER_PEARL:
                 entity = null;
         }
+
+        // TODO: Consider what happens a player hits an end crystal with a snowball.
+        //  Theoretically, we have enough information to put it to the correct player.
 
         if (entity instanceof Projectile projectile) {
             entity = extractProjectileSource(projectile.getShooter());
