@@ -6,6 +6,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 
 import java.util.HashSet;
@@ -73,44 +74,72 @@ public class CombatTracker {
         var lastDamageEvent = player.getLastDamageCause();
 
         if (lastDamageEvent instanceof EntityDamageByEntityEvent entityEvent) {
-            var entity = getCausingEntity(entityEvent.getDamager());
-
-            if (entity instanceof Mob mob) {
-                var item = mob.getEquipment().getItemInMainHand();
-
-                if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
-                    return fixDamageSource(new DamageSource(damageType, entity, item));
-                }
-            }
-
-            return fixDamageSource(new DamageSource(damageType, entity, null));
+            return createDamageSource(damageType, entityEvent.getDamager());
         } else {
-            return fixDamageSource(new DamageSource(damageType, null, null));
+            return createDamageSource(damageType, null);
         }
     }
 
-    private DamageSource fixDamageSource(DamageSource damageSource) {
-        // Some explosions are listed as "player_explosion", but not actually caused by players.
-        // If that is the case, we change the damage type to "explosion".
-        if (damageSource.damageType().equals(DamageType.PLAYER_EXPLOSION) && !(damageSource.causingEntity() instanceof Player)) {
-            damageSource = new DamageSource(DamageType.EXPLOSION, damageSource.causingEntity(), damageSource.specialItem());
+    private DamageSource createDamageSource(DamageType damageType, Entity originalEntity) {
+        Entity causingEntity = null;
+        ItemStack specialItem = null;
+
+        // Get causing entity
+        if (originalEntity != null) {
+            causingEntity = getCausingEntity(originalEntity);
         }
 
-        // TODO: The "unattributed_fireball" damage type is kindof goofy, we might wanna replace it with
-        //  just being a regular "fireball", just without a causing entity.
-        //  Same with indirect_magic, maybe?
-        //  Same with mob_attack_no_aggro, maybe?
-        //  Do something special for hunger given from a husk?
-        //  Do something special for wither skeletons giving you wither effect?
-        //  Wolves belonging to someone?
+        // Check for special items
+        if (causingEntity instanceof Mob mob) {
+            var item = mob.getEquipment().getItemInMainHand();
 
-        // TODO: If the player is killed by a wither skull, the damage type should be wither skull all the time
-        //  Note: This requires rewriting this method, so that we know the original entity and not the causing one
+            if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+                specialItem = item;
+            }
+        }
 
+        // --------------------
+        // The section below changes some of the behavior away from the vanilla one,
+        // because the vanilla one is rather unintuitive and/or inconvenient in those cases.
+
+        // Some explosions are listed as "player_explosion", but not actually caused by players.
+        // If that is the case, we change the damage type to "explosion".
+        if (damageType.equals(DamageType.PLAYER_EXPLOSION) && !(causingEntity instanceof Player)) {
+            damageType = DamageType.EXPLOSION;
+        }
+
+        // The unattributed fireball damage type is unintuitive. If the player was killed by a
+        // fireball, we just always use "fireball".
+        if (originalEntity instanceof Fireball) {
+            damageType = DamageType.FIREBALL;
+        }
+
+        // When we tested this, unowned fireballs were always damage type "magic" and ones with a
+        // corresponding wither were listed under "player_explosion". To simplify, we just always
+        // "wither_skull" as a damage type if the player was killed by a wither skull.
+        if (originalEntity instanceof WitherSkull) {
+            damageType = DamageType.WITHER_SKULL;
+        }
+
+        // "indirect_magic" is a rather unintuitive damage type, because the split to "magic" is
+        // a bit unclear. We just always use "magic" in this plugin.
+        if (damageType.equals(DamageType.INDIRECT_MAGIC)) {
+            damageType = DamageType.MAGIC;
+        }
+
+        // "mob_attack_no_aggro" is only used for goats ramming things, so we can just use "mob_attack"
+        // instead, because that is probably what users expect.
+        if (damageType.equals(DamageType.MOB_ATTACK_NO_AGGRO)) {
+            damageType = DamageType.MOB_ATTACK;
+        }
+
+        // TODO: Do something special for hunger given from a husk?
+        // TODO: Do something special for wither skeletons giving you wither effect?
+        // TODO: Track wolves belonging to someone?
         // TODO: There is an extra case when an arrow of harming does magic damage, which is not attributed to the
         //  entity that shot the arrow, because it is (probably) not applied in the same tick
 
-        return damageSource;
+        return new DamageSource(damageType, causingEntity, specialItem);
     }
 
     private static Entity getCausingEntity(Entity entity) {

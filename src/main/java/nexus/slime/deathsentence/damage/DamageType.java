@@ -30,4 +30,8 @@ public interface DamageType extends Keyed {
     DamageType OUT_OF_WORLD = KeyedDamageType.fromKey("out_of_world");
     DamageType WITHER = KeyedDamageType.fromKey("wither");
     DamageType OUTSIDE_BORDER = KeyedDamageType.fromKey("outside_border");
+    DamageType FIREBALL = KeyedDamageType.fromKey("fireball");
+    DamageType WITHER_SKULL = KeyedDamageType.fromKey("wither_skull");
+    DamageType INDIRECT_MAGIC = KeyedDamageType.fromKey("indirect_magic");
+    DamageType MOB_ATTACK_NO_AGGRO = KeyedDamageType.fromKey("mob_attack_no_aggro");
 }
