@@ -98,8 +98,11 @@ public record PlayerDeathListener(
                     .build());
         }
 
-        return plugin.getSettings().getPrefix()
-                .append(actualMessage);
+        return plugin.getSettings().getMessageTemplate()
+                .replaceText(TextReplacementConfig.builder()
+                        .match("%message%")
+                        .replacement(actualMessage)
+                        .build());
     }
 
     private DeathMessage findDeathMessage(Player player, DamageSource context) {

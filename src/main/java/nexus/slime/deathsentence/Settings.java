@@ -24,7 +24,7 @@ public class Settings {
         var config = YamlConfiguration.loadConfiguration(path.toFile());
 
         // General settings
-        config.set("prefix", "");
+        config.set("message_template", "%message%");
         config.set("cooldown_seconds", 0);
         config.set("log_deaths", true);
         config.set("fallback_message", "");
@@ -177,7 +177,7 @@ public class Settings {
         return byEntity;
     }
 
-    private final Component prefix;
+    private final Component messageTemplate;
     private final int cooldownSeconds;
     private final boolean logDeaths;
     private final Component fallbackMessage;
@@ -188,13 +188,13 @@ public class Settings {
 
     private Settings(DeathSentencePlugin plugin, FileConfiguration config) throws IOException {
         // Prefix
-        var prefixString = config.getString("prefix");
+        var messageTemplateString = config.getString("message_template");
 
-        if (prefixString == null) {
-            throw new IOException("'prefix' is required in config!");
+        if (messageTemplateString == null) {
+            throw new IOException("'message_template' is required in config!");
         }
 
-        prefix = MiniMessage.miniMessage().deserialize(prefixString);
+        messageTemplate = MiniMessage.miniMessage().deserialize(messageTemplateString);
 
         // Cooldown
         cooldownSeconds = config.getInt("cooldown_seconds");
@@ -239,8 +239,8 @@ public class Settings {
         specialItemPool = new EntityDeathMessagePool(readEntityDamageMessageMap(plugin, specialItemSection));
     }
 
-    public Component getPrefix() {
-        return prefix;
+    public Component getMessageTemplate() {
+        return messageTemplate;
     }
 
     public int getCooldownSeconds() {

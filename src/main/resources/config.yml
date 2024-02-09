@@ -14,9 +14,9 @@
 # Config generated with plugin version: @version@
 #
 
-# Central prefix for all death messages
-# (Note: administrative plugin messages have no prefix)
-prefix: "<bold><red>DEATH</red></bold> <dark_gray>|</dark_gray> "
+# Template for the death messages.
+# %message% is replaced by the actual death message.
+message_template: "<bold><red>DEATH</red></bold> <dark_gray>|</dark_gray> <gray>%message%</gray>"
 
 # Cooldown in seconds for when the next death message can appear after a player died.
 # This cooldown can be bypassed with permission "deathsentence.bypass.cooldown"
