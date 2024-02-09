@@ -1,5 +1,5 @@
 main: nexus.slime.deathsentence.DeathSentencePlugin
-api-version: '1.13'
+api-version: '1.19'
 
 name: DeathSentence
 description: An improved death messages plugin that tries to give as much control as possible, while providing reasonable fallbacks.
@@ -10,6 +10,13 @@ authors:
 
 commands:
   deathsentence:
-    usage: "/deathsentence <generate_full_config|reload>"
+    usage: "/deathsentence <reload|generate_debug_config>"
     permission: deathsentence.admin
     description: Command to configure settings for the death sentence plugin
+
+permissions:
+  deathsentence.admin:
+    description: "Allows administrative access to the plugin (/deathsentence command)."
+  deathsentence.bypass.cooldown:
+    description: "Bypasses the cooldown between death messages."
+    default: false

@@ -39,13 +39,23 @@ public class CombatTracker {
     }
 
     public void setDeathMessageCooldown(Player player) {
+        long cooldownTicks = plugin.getSettings().getCooldownSeconds() * 20L;
+
+        if (cooldownTicks == 0) {
+            return;
+        }
+
+        if (player.hasPermission("deathsentence.bypass.cooldown")) {
+            return;
+        }
+
         UUID uuid = player.getUniqueId();
         playersOnCooldown.add(uuid);
 
         plugin.getServer().getScheduler().runTaskLater(
                 plugin,
                 () -> playersOnCooldown.remove(uuid),
-                plugin.getSettings().getCooldownSeconds() * 20L
+                cooldownTicks
         );
     }
 
