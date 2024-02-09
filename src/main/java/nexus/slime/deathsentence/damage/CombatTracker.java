@@ -91,6 +91,11 @@ public class CombatTracker {
 
         // Check for special items
         if (causingEntity instanceof Mob mob) {
+            // TODO: This only really works if that weapon was actually used to attack.
+            //  (e.g. this currently also triggers when a player is killed by the thorns of another player)
+            //  Ways to make this more transparent to the user are either:
+            //  a) Add a configuration entry to specify which damage types are a mainhand attack
+            //  b) Add a warning if the user specifies "special_item_death.default.generic" in the config
             var item = mob.getEquipment().getItemInMainHand();
 
             if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
@@ -104,6 +109,8 @@ public class CombatTracker {
 
         // Some explosions are listed as "player_explosion", but not actually caused by players.
         // If that is the case, we change the damage type to "explosion".
+        // TODO: We can also completely remove "player_explosion", because it's pretty redundant with the way
+        //  this plugin works
         if (damageType.equals(DamageType.PLAYER_EXPLOSION) && !(causingEntity instanceof Player)) {
             damageType = DamageType.EXPLOSION;
         }
@@ -114,9 +121,11 @@ public class CombatTracker {
             damageType = DamageType.FIREBALL;
         }
 
-        // When we tested this, unowned wither skulls were always damage type "magic" and ones with a
-        // corresponding wither were listed under "player_explosion". To simplify, we just always
-        // "wither_skull" as a damage type if the player was killed by a wither skull.
+        // When we tested this, wither skulls with a corresponding wither were listed under
+        // "player_explosion". To simplify, we just always "wither_skull" as a damage type if
+        // the player was killed by a wither skull.
+        // TODO: Figure out why there is no originalEntity when a wither skull without a wither
+        //  owning it hits a player
         if (originalEntity instanceof WitherSkull) {
             damageType = DamageType.WITHER_SKULL;
         }
