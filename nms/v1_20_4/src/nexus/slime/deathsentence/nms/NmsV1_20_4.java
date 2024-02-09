@@ -1,7 +1,5 @@
 package nexus.slime.deathsentence.nms;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
@@ -37,14 +35,6 @@ public class NmsV1_20_4 implements Nms {
         if (damageSource == null) {
             return null;
         }
-
-        // DEBUG
-        var entityTypeRegistry = MinecraftServer.getServer().registryAccess().registry(Registries.ENTITY_TYPE).get();
-        var sourceEntity = damageSource.getEntity();
-        var directEntity = damageSource.getDirectEntity();
-        player.getServer().sendMessage(Component.text("Entity: " + (sourceEntity == null ? "null" : entityTypeRegistry.getKey(sourceEntity.getType()).toString() + sourceEntity), NamedTextColor.GOLD));
-        player.getServer().sendMessage(Component.text("Direct Entity: " + (directEntity == null ? "null" : entityTypeRegistry.getKey(directEntity.getType()).toString() + directEntity), NamedTextColor.GOLD));
-        // DEBUG
 
         var damageTypeKey = getDamageTypeRegistry().getKey(damageSource.type());
         return NamespacedKey.fromString(Objects.requireNonNull(damageTypeKey).toString());
