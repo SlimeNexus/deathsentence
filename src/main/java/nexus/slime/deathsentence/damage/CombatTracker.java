@@ -96,7 +96,7 @@ public class CombatTracker {
 
         // Get causing entity
         if (originalEntity != null) {
-            causingEntity = getCausingEntity(originalEntity);
+            causingEntity = trackResponsibleEntity(originalEntity);
         }
 
         // Check for special items
@@ -161,7 +161,7 @@ public class CombatTracker {
         return new DamageSource(damageType, causingEntity, specialItem);
     }
 
-    private static Entity getCausingEntity(Entity entity) {
+    public static Entity trackResponsibleEntity(Entity entity) {
         var entityType = entity.getType();
 
         switch (entityType) {
@@ -169,9 +169,6 @@ public class CombatTracker {
             case ENDER_PEARL:
                 entity = null;
         }
-
-        // TODO: Consider what happens a player hits an end crystal with a snowball.
-        //  Theoretically, we have enough information to put it to the correct player.
 
         if (entity instanceof Projectile projectile) {
             entity = extractProjectileSource(projectile.getShooter());
