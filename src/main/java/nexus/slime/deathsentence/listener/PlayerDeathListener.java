@@ -2,6 +2,7 @@ package nexus.slime.deathsentence.listener;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import nexus.slime.deathsentence.DeathSentencePlugin;
 import nexus.slime.deathsentence.Settings;
 import nexus.slime.deathsentence.damage.DamageSource;
@@ -15,6 +16,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 public record PlayerDeathListener(
         DeathSentencePlugin plugin
 ) implements Listener {
+    private static final Component FALLBACK_MESSAGE = MiniMessage.miniMessage().deserialize("%player% died.");
+
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
         // No death message - we do it ourselves
@@ -130,6 +133,6 @@ public record PlayerDeathListener(
             return naturalMessage;
         }
 
-        return new DeathMessage(settings.getFallbackMessage());
+        return new DeathMessage(FALLBACK_MESSAGE);
     }
 }

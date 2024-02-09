@@ -49,9 +49,6 @@ log_deaths: true
 # start at step 9.
 #
 
-# Fallback message when no other messages are available.
-fallback_message: "%player% died."
-
 # Map of natural death messages categorized by damage type.
 # A list of vanilla damage types can be found here: https://minecraft.wiki/w/Damage_type
 natural_death:

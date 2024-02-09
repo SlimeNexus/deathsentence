@@ -27,7 +27,6 @@ public class Settings {
         config.set("message_template", "%message%");
         config.set("cooldown_seconds", 0);
         config.set("log_deaths", true);
-        config.set("fallback_message", "");
 
         // Natural deaths
         for (DamageType damageType : damageTypeRegistry) {
@@ -180,7 +179,6 @@ public class Settings {
     private final Component messageTemplate;
     private final int cooldownSeconds;
     private final boolean logDeaths;
-    private final Component fallbackMessage;
 
     private final NaturalDeathMessagePool naturalPool;
     private final EntityDeathMessagePool entityPool;
@@ -201,15 +199,6 @@ public class Settings {
 
         // Log deaths
         logDeaths = config.getBoolean("log_deaths");
-
-        // Fallback message
-        var fallbackMessageString = config.getString("fallback_message");
-
-        if (fallbackMessageString == null) {
-            throw new IOException("'fallback_message' is required in config!");
-        }
-
-        fallbackMessage = MiniMessage.miniMessage().deserialize(fallbackMessageString);
 
         // Natural death messages
         var naturalSection = config.getConfigurationSection("natural_death");
@@ -249,10 +238,6 @@ public class Settings {
 
     public boolean isLogDeaths() {
         return logDeaths;
-    }
-
-    public Component getFallbackMessage() {
-        return fallbackMessage;
     }
 
     public NaturalDeathMessagePool getNaturalPool() {
