@@ -2,7 +2,6 @@ package nexus.slime.deathsentence.listener;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import nexus.slime.deathsentence.DeathSentencePlugin;
 import nexus.slime.deathsentence.Settings;
 import nexus.slime.deathsentence.damage.DamageSource;
@@ -16,11 +15,10 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 public record PlayerDeathListener(
         DeathSentencePlugin plugin
 ) implements Listener {
-    private static final Component FALLBACK_MESSAGE = MiniMessage.miniMessage().deserialize("%player% died.");
-
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
-        var player = event.getEntity();
+        final var player = event.getEntity();
+        final Component previousDeathMessage = event.deathMessage();
 
         // No death message - we do it ourselves
         event.deathMessage(null);
@@ -45,7 +43,7 @@ public record PlayerDeathListener(
                 return;
             }
 
-            var deathMessage = findDeathMessage(player, damageSource);
+            var deathMessage = findDeathMessage(player, damageSource, previousDeathMessage);
             var chatMessage = constructChatMessage(deathMessage, player, damageSource);
 
             plugin.getCombatTracker().setDeathMessageCooldown(player);
@@ -108,7 +106,7 @@ public record PlayerDeathListener(
                         .build());
     }
 
-    private DeathMessage findDeathMessage(Player player, DamageSource context) {
+    private DeathMessage findDeathMessage(Player player, DamageSource context, Component fallback) {
         Settings settings = plugin.getSettings();
 
         if (context.specialItem() != null) {
@@ -133,6 +131,6 @@ public record PlayerDeathListener(
             return naturalMessage;
         }
 
-        return new DeathMessage(FALLBACK_MESSAGE);
+        return new DeathMessage(fallback);
     }
 }
