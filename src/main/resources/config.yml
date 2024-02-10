@@ -25,30 +25,6 @@ cooldown_seconds: 60
 # Whether to print a detailed message to console when a player dies.
 log_deaths: true
 
-#
-# This plugin allows you to configure death messages for very specific circumstances.
-# This freedom also means that it's very hard to cover all the possible ways in which
-# a player can die in the configuration. This is why the plugin relies heavily on
-# fallback messages. Here is an example of which places in the configuration the plugin
-# checks first when a player is killed by a skeleton hitting the player with a bow
-# which has a custom name (damage type: arrow).
-#
-# 1) special_item_death -> skeleton -> arrow
-# 2) special_item_death -> skeleton -> generic
-# 3) special_item_death -> default -> arrow
-# 4) special_item_death -> default -> generic
-# 5) entity_death -> skeleton -> arrow
-# 6) entity_death -> skeleton -> generic
-# 7) entity_death -> default -> arrow
-# 8) entity_death -> default -> generic
-# 9) natural_death -> arrow
-# 10) natural_death -> generic
-#
-# If the skeleton was holding a weapon with no custom name, the lookup would start at
-# step 5. If the player had died from a dispenser firing the arrow, the lookup would
-# start at step 9.
-#
-
 # Map of natural death messages categorized by damage type.
 # A list of vanilla damage types can be found here: https://minecraft.wiki/w/Damage_type
 natural_death:
