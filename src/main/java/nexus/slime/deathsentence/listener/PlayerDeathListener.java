@@ -20,9 +20,9 @@ public record PlayerDeathListener(
 
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
-        // No death message - we do it ourselves
         var player = event.getEntity();
 
+        // No death message - we do it ourselves
         event.deathMessage(null);
 
         Bukkit.getScheduler().runTask(plugin, () -> {
