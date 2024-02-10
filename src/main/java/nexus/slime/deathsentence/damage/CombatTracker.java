@@ -134,8 +134,11 @@ public class CombatTracker {
         // When we tested this, wither skulls with a corresponding wither were listed under
         // "player_explosion". To simplify, we just always "wither_skull" as a damage type if
         // the player was killed by a wither skull.
-        // TODO: Figure out why there is no originalEntity when a wither skull without a wither
-        //  owning it hits a player
+        //
+        // Note: Vanilla does something pretty unfortunate here. In the WitherSkull#onHit method,
+        // the magic damage type is automatically selected if the source of the wither skull
+        // cannot be identified. In similar situations for other damage types, vanilla has
+        // a corresponding "unattributed_[x]" damage type. Not in this case, however.
         if (originalEntity instanceof WitherSkull) {
             damageType = DamageType.WITHER_SKULL;
         }
@@ -154,7 +157,6 @@ public class CombatTracker {
 
         // TODO: Do something special for hunger given from a husk?
         // TODO: Do something special for wither skeletons giving you wither effect?
-        // TODO: Track wolves belonging to someone?
         // TODO: There is an extra case when an arrow of harming does magic damage, which is not attributed to the
         //  entity that shot the arrow, because it is (probably) not applied in the same tick
 
