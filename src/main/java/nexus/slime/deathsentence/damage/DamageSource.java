@@ -5,7 +5,7 @@ import org.bukkit.inventory.ItemStack;
 
 public record DamageSource(
         DamageType damageType,
-        Entity causingEntity,
+        Entity responsibleEntity,
         ItemStack specialItem
 ) {
 }

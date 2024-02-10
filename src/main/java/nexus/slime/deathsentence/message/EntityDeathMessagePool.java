@@ -14,13 +14,13 @@ public record EntityDeathMessagePool(
     public static final EntityType CUSTOM_ENTITY_TYPE = EntityType.UNKNOWN;
 
     public DeathMessage findMessage(Player player, DamageSource context) {
-        if (context.causingEntity() == null) {
+        if (context.responsibleEntity() == null) {
             return null;
         }
 
         return DeathMessage.choose(
                 messages,
-                context.causingEntity().getType(),
+                context.responsibleEntity().getType(),
                 CUSTOM_ENTITY_TYPE,
                 map -> DeathMessage.choose(
                         map,

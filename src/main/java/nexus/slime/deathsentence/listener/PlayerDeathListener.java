@@ -55,7 +55,7 @@ public record PlayerDeathListener(
 
     public String getLogMessage(Player player, DamageSource source) {
         var damageType = source.damageType();
-        var entity = source.causingEntity();
+        var entity = source.responsibleEntity();
         String entityMessage = null;
 
         if (entity != null) {
@@ -85,12 +85,12 @@ public record PlayerDeathListener(
                 .replacement(player.displayName())
                 .build());
 
-        if (context.causingEntity() != null) {
+        if (context.responsibleEntity() != null) {
             actualMessage = actualMessage.replaceText(TextReplacementConfig.builder()
                     .match("%attacker%")
-                    .replacement(context.causingEntity() instanceof Player cause
+                    .replacement(context.responsibleEntity() instanceof Player cause
                             ? cause.displayName()
-                            : context.causingEntity().name())
+                            : context.responsibleEntity().name())
                     .build());
         }
 
@@ -119,7 +119,7 @@ public record PlayerDeathListener(
             }
         }
 
-        if (context.causingEntity() != null) {
+        if (context.responsibleEntity() != null) {
             var entityMessage = settings.getEntityPool().findMessage(player, context);
 
             if (entityMessage != null) {

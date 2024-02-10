@@ -91,16 +91,16 @@ public class CombatTracker {
     }
 
     private DamageSource createDamageSource(DamageType damageType, Entity originalEntity) {
-        Entity causingEntity = null;
+        Entity responsibleEntity = null;
         ItemStack specialItem = null;
 
         // Get causing entity
         if (originalEntity != null) {
-            causingEntity = trackResponsibleEntity(originalEntity);
+            responsibleEntity = trackResponsibleEntity(originalEntity);
         }
 
         // Check for special items
-        if (causingEntity instanceof Mob mob) {
+        if (responsibleEntity instanceof Mob mob) {
             // TODO: This only really works if that weapon was actually used to attack.
             //  (e.g. this currently also triggers when a player is killed by the thorns of another player)
             //  Ways to make this more transparent to the user are either:
@@ -121,7 +121,7 @@ public class CombatTracker {
         // If that is the case, we change the damage type to "explosion".
         // TODO: We can also completely remove "player_explosion", because it's pretty redundant with the way
         //  this plugin works
-        if (damageType.equals(DamageType.PLAYER_EXPLOSION) && !(causingEntity instanceof Player)) {
+        if (damageType.equals(DamageType.PLAYER_EXPLOSION) && !(responsibleEntity instanceof Player)) {
             damageType = DamageType.EXPLOSION;
         }
 
@@ -158,7 +158,7 @@ public class CombatTracker {
         // TODO: There is an extra case when an arrow of harming does magic damage, which is not attributed to the
         //  entity that shot the arrow, because it is (probably) not applied in the same tick
 
-        return new DamageSource(damageType, causingEntity, specialItem);
+        return new DamageSource(damageType, responsibleEntity, specialItem);
     }
 
     public static Entity trackResponsibleEntity(Entity entity) {
