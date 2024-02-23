@@ -1,0 +1,19 @@
+steps:
+  build:
+    image: gradle:8.5-jdk17
+    commands:
+      - gradle clean build
+    environment:
+      BUILD_RELEASE_VERSION: ${CI_COMMIT_TAG##v}
+
+  release:
+    image: plugins/github-release
+    settings:
+      title: ${CI_COMMIT_TAG##v}
+      files: build/libs/*.jar
+      api-key:
+        from_secret: github_token
+
+when:
+  event: tag
+  ref: refs/tags/v*

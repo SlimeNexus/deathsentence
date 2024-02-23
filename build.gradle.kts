@@ -1,4 +1,5 @@
 import org.apache.tools.ant.filters.ReplaceTokens
+import java.io.ByteArrayOutputStream
 
 plugins {
     id("java")
@@ -8,7 +9,7 @@ plugins {
 }
 
 group = "nexus.slime"
-version = "1.0-SNAPSHOT"
+version = getVersionFromEnvironment()
 
 allprojects {
     apply(plugin = "java")
@@ -73,4 +74,37 @@ tasks.processResources {
     filesMatching("config.yml") {
         filter(ReplaceTokens::class, mapOf("tokens" to props))
     }
+}
+
+// ---------------
+// Produce a good project version
+
+fun getVersionFromEnvironment(): String {
+    // If we're built from CI, we use that version
+    val release = System.getenv("BUILD_RELEASE_VERSION")
+
+    if (release != null) {
+        return release
+    }
+
+    // Otherwise, we generate the next dev version
+    // Example: Latest git tag: v0.0.3 --> Version: 0.0.4-DEV
+    val output = ByteArrayOutputStream()
+
+    try {
+        exec {
+            commandLine("git", "tag", "--sort=taggerdate")
+            standardOutput = output
+        }
+    } catch (ignored: GradleException) {
+        // If git isn't found, we just leave the output blank
+    }
+
+    val latestTag = output.toString()
+        .lines()
+        .lastOrNull { it.isNotBlank() }
+        ?.removePrefix("v") ?: "0.0.0"
+
+    val patchNumber = latestTag.substringAfterLast('.').toInt()
+    return latestTag.replaceAfterLast('.', (patchNumber + 1).toString()) + "-DEV"
 }
