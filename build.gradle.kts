@@ -3,8 +3,8 @@ import org.apache.tools.ant.filters.ReplaceTokens
 plugins {
     id("java")
     id("io.papermc.paperweight.userdev") version "1.5.11" apply false
-    id("xyz.jpenilla.run-paper") version "2.2.2"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("xyz.jpenilla.run-paper") version "2.2.3"
+    id("io.github.goooler.shadow") version "8.1.5"
 }
 
 group = "nexus.slime"
