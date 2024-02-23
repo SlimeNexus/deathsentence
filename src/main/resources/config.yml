@@ -16,68 +16,388 @@
 
 # Template for the death messages.
 # %message% is replaced by the actual death message.
+# Default: "<bold><red>DEATH</red></bold> <dark_gray>|</dark_gray> <gray>%message%</gray>"
 message_template: "<bold><red>DEATH</red></bold> <dark_gray>|</dark_gray> <gray>%message%</gray>"
 
 # Cooldown in seconds for when the next death message can appear after a player died.
 # This cooldown can be bypassed with permission "deathsentence.bypass.cooldown"
+# Default: 60
 cooldown_seconds: 60
 
 # Whether to print a detailed message to console when a player dies.
+# Default: true
 log_deaths: true
 
 # Map of natural death messages categorized by damage type.
 # A list of vanilla damage types can be found here: https://minecraft.wiki/w/Damage_type
 natural_death:
+  # Fallback message if all else fails
+  generic:
+    - "%player% has died."
 
-  # Example entry: Damage caused by a cactus
+  # If the player was killed by an arrow from a dispenser. Cases where the player is 
+  # killed by an arrow shot by another entity are covered in the entity_death section.
+  arrow:
+    - "%player% walked into an arrow trap."
+    - "%player% got to meet an arrow. It was a deadly encounter."
+
+  bad_respawn_point:
+    # If the player clicked on a respawn anchor in the overworld
+    - message: "%player% tried to use a respawn anchor in the overworld."
+      world_type: normal
+    # If the player clicked on a respawn anchor in the nether
+    - message: "%player% discovered <click:open_url:'https://bugs.mojang.com/browse/MCPE-28723'>[Intentional Game Design]</click>"
+      world_type: nether
+    # If the player clicked on a respawn anchor in the end
+    - message: "%player% discovered <click:open_url:'https://bugs.mojang.com/browse/MCPE-28723'>[Intentional Game Design]</click>"
+      world_type: the_end
+  
   cactus:
-    # Regular death message
-    - "%player% prickled themselves to death on a cactus."
-
     # Advanced death message
-    - # Actual message
-      message: "%player% touched one prickly boy."
+    - message: "%player% touched one prickly boy."
       # Weight option controlling how likely this message is to be chosen
       # Since this message has a weight of 0.1, it's less likely to appear
       weight: 0.1
-      # Death message should only work in the nether
-      world_type: "nether"
+
+    # This regular message has default weight 1
+    - "%player% tried hugging a cactus. The cactus did not appreciate the gesture."
+
+  drown:
+    # Normal death message
+    - "%player% drowned."
+
+    # Advanced death message
+    - message: "%player% isn't as waterproof as they claim to be."
       # Death message should only appear if the player has permission node "example.death.message"
       permission: "example.death.message"
+      # Make this message more likely than the other one
+      weight: 10
+
+  explosion:
+    - "%player% wanted to watch an explosion from up close."
+
+  fall:
+    - "%player% fell from a high place."
+
+  falling_anvil:
+    - "%player% found an anvil... falling from the sky... onto their head."
+
+  falling_stalactite:
+    - "%player% got the drip... stone... on their head."
+
+  fireball:
+    - "%player% caught a fireball... with their face."
+  
+  fireworks:
+    - "%player% partied a bit too hard during the fireworks show."
+
+  fly_into_wall:
+    - "%player% flew into a wall. It made a mess."
+
+  freeze:
+    - "The snow feels very soft and cold today. Too cold for %player%."
+  
+  generic_kill:
+    - "The might of the server admins came down on %player%."
+
+  hot_floor:
+    - "The floor is lava! Wait... no... %player% just told me it was magma right before he died."
+
+  in_fire:
+    - "%player% felt cold and figured standing in a fire would solve that problem."
+
+  in_wall:
+    - "Oh wow! That wall looks so interesting that %player% wanted to see it from the inside."
+  
+  magic:
+    - "%player% had a magical (and deadly) experience."
+
+  on_fire:
+    - "%player% is on fire today!"
+
+  out_of_world:
+    - "Normally people stay away from bottomless void, but %player% thought it would be a great idea to explore it."
+
+  outside_border:
+    - "%player% wanted to explore what's beyond the world border. They discovered death."
+
+  stalagmite:
+    - "%player% was impailed by a stalagmite." 
+
+  starve:
+    - "Usually it's common sense to eat something. %player% didn't think so and paid the price..."
+
+  sweet_berry_bush:
+    - "Sweet berries may be very tasty, but the bushes don't feel as nice, as %player% discovered."
+
+  wither:
+    - "%player% withered away."
 
 # This section is used if an entity killed a player without using a special item.
 # It contains a map of death messages categorized by entity type and damage type.
 entity_death:
   default:
-    melee:
-      - "%player% was slain."
-      - "%player% was slain by %attacker%."
-    thorns:
-      - "%player% discovered that %attacker% has thorns"
     generic:
       - "%player% was killed by %attacker%."
-
-  player:
+    mob_attack:
+      - "%player% was slain by %attacker%."
     arrow:
       - "%player% was shot by %attacker%."
-    player_attack:
-      - "%player% was killed by %attacker%."
+    trident:
+      - "%player% was impailed by %attacker%."
 
-  zombie:
-    generic:
-      - "%player% was zombified."
+  armor_stand:
+    thorns:
+      - "%player% lost a match against... an armor stand..."
+      - "%player% was killed by an armor stand. Now <italic>that</italic> is what I'd call a skill issue."
 
-# This category is used if an entity killed a player without using a special item.
-# It contains a map of death messages categorized by entity type and damage type.
-special_item_death:
-  default:
-    generic:
-      - "%player% was killed by %attacker% using %item%."
-    melee:
-      - "%player% was slain by %attacker% using %item%."
+  bee:
+    sting:
+      - "%player% got stung to death. How dare he attack a bee?!"
+
+  blaze:
+    mob_attack:
+      - "%player% was trying cuddling with a blaze. Things got heated."
+    fireball:
+      - "A blazingly fast fireball killed %player%."
+
+  cave_spider:
+    mob_attack:
+      - "A small spider in some cave killed %player%."
+
+  creeper:
+    explosion:
+      - "%player% got blown up by a weird, green creature... how creepy."
+
+  drowned:
+    mob_attack:
+      - "'%player% drowned.' Hmm... no, that's not quite right. How about '%player% was drowned by a drowned.'?"
+    trident:
+      - "A drowned threw an oversized fork at %player% and killed them."
+    thorns:
+      - "%player% tried to attack a drowned. The drowned had thorns armor."
+
+  elder_guardian:
+    magic:
+      - "%player% got laser eye surgery from an elder guardian. It hurt. A lot."
+    thorns:
+      - "%player% couldn't wait to clear out an ocean monument and hit an elder guardian while it still had its thorns out."
+
+  ender_dragon:
+    mob_attack:
+      - "The life of %player% came to an end. With assistance from the appropriately named ender dragon."
+    magic:
+      - "Hmm... somehow %player% seems to have thought that stepping into the purple breath of the ender dragon was a good idea."
+
+  enderman:
+    mob_attack:
+      - "%player% looked at an enderman funny. The enderman did not appreciate that."
+
+  endermite:
+    mob_attack:
+      - "Yo %player%, better be careful with those enderpearls next time. Wouldn't wanna die to an endermite twice."
+
+  evoker:
+    magic:
+      - "%player% couldn't escape the fangs of an evoker."
+
+  ghast:
+    fireball:
+      - "%player% died from a ghast fireball."
+
+  giant:
+    thorns:
+      - "Did you know that giants don't attack you? Somehow %player% managed to die to a giant anyways."
+
+  goat:
+    mob_attack:
+      - "%player% found some goat horns... in their stomache. They died from surprise."
+
+  guardian:
+    thorns:
+      - "%player% just discovered that it might not be the best idea to hit a guardian while it's displaying its spikes."
+    magic:
+      - "%player% got lasered out of existence."
+
+  hoglin:
+    mob_attack:
+      - "%player% got into a brawl with a hoglin."
+
+  husk:
+    mob_attack:
+      - "%player% discovered a desert zombie."
+    thorns:
+      - "%player% was wandering through the desert when being attacked by a strange zombie with spiky armor."
+
+  illusioner:
+    arrow:
+      - "An illusioner taught %player% that their life was just an illusion."
+
+  iron_golem:
+    mob_attack:
+      - "Better leave the iron golems alone next time, %player%."
+
+  llama:
+    mob_projectile: # <1.20.5
+      - "A llama spat %player% in the face."
+    spit: # >=1.20.5
+      - "A llama spat %player% in the face."
+
+  magma_cube:
+    mob_attack:
+      - "%player% got killed by a red, hot slime."
+
+  phantom:
+    mob_attack:
+      - "You should sleep more, %player%. Those phantoms seem very mean."
+
+  piglin:
+    arrow:
+      - "I bet this piglin was proud of his crossbow skills, when he shot %player%."
+    mob_attack:
+      - "%player% was piglined to death."
+      # It's hard to be creative when writing so many death messages, okay?
+      # If you have a better idea, suggest it in our Discord: https://slime.nexus/discord/ ^-^
+
+  piglin_brute:
+    mob_attack:
+      - "%player% got killed by a piglin. A very big, strong piglin."
+
+  pillager:
+    arrow:
+      - "%player% got pillaged."
 
   player:
     arrow:
-      - "%player% was shot by %attacker% using %item%."
+      - "%player% got shot by %attacker%."
+    fireworks:
+      - "%player% was blown away by the fireworks show %attacker% organized for them."
+    magic:
+      - "%player% brought a knife to a potion fight. %attacker% won."
+    thorns:
+      - "%attacker% has armor that tickles. In fact, it tickles so much %player% died from it."
+    trident:
+      - "%attacker% brought an oversized fork to their fight with %player%. In addition to making lunch easier, it also helped them win."
     player_attack:
-      - "%player% was killed by %attacker% using %item%."
+      - "%player% got beaten by %attacker%."
+    player_explosion:
+      - "Oh damn. %attacker% blew up %player%."
+
+  polar_bear:
+    mob_attack:
+      - "That looks rather painful, %player%. Better leave those polar bears alone next time, huh?"
+
+  pufferfish:
+    mob_attack:
+      - "%player% wanted to swim with a pufferfish. The pufferfish had other plans."
+
+  rabbit:
+    mob_attack:
+      - "Better be careful. %player% just got killed by a bunny."
+
+  ravager:
+    mob_attack:
+      - "%player% rammed a ravager. The ravager rammed back and was clearly stronger."
+
+  shulker:
+    mob_projectile:
+      - "Better dodge those shulker bullets next time %player%."
+
+  silverfish:
+    mob_attack:
+      - "Yo, %player%. You know those silvery bugs you find underground? You should stay away from them next time."
+
+  skeleton:
+    arrow:
+      - "%player% could not escape the aim of this skeleton."
+
+  slime:
+    mob_attack:
+      - "%player% got an overexcited hug from a slime."
+
+  spider:
+    mob_attack:
+      - "%player% could not escape spider with her majestic net."
+
+  stray:
+    arrow:
+      - "%player% saw a stray... and then an arrow... and then the game over screen."
+    thorns:
+      - "%player% discovered that strays can also wear thorns. The discovery wasn't pleasant."
+
+  trader_llama:
+    mob_projectile: # <1.20.5
+      - "A llama from a wandering trader spat %player% in the face."
+    spit: # >=1.20.5
+      - "A llama from a wandering trader spat %player% in the face."
+
+  vex:
+    mob_attack:
+      - "%player% could not escape a vex."
+  
+  vindicator:
+    mob_attack:
+      - "%player% was killed by a vindicator."
+
+  warden:
+    mob_attack:
+      - "%player% wasn't careful enough around a warden."
+    sonic_boom:
+      - "%player% thought they could escape the warden. The warden thought otherwise."
+
+  witch:
+    magic:
+      - "%player% got owned by a witch."
+
+  wither:
+    explosion:
+      - "%player% can't help in the wither fight. They're busy dying from the initial explosion."
+    wither_skull:
+      - "%player% realized that the wither is stronger than they are."
+
+  wither_skeleton:
+    mob_attack:
+      - "A wither skeleton took the skull of %player% for a change."
+
+  wolf:
+    mob_attack:
+      - "%player% got ripped apart by a wolf."
+
+  zoglin:
+    mob_attack:
+      - "%player% had an encounter with a zoglin. A deadly encounter."
+
+  zombie:
+    mob_attack:
+      - "%player% got zombified."
+    thorns:
+      - "%player% tried to defend against the zombie apocalypse, but the zombies had thorns."
+
+  zombie_villager:
+    mob_attack:
+      - "%player% got killed by a villager? Oh - wait - no, a zombie villager!"
+    thorns:
+      - "%player% hit a zombie villager. The zombie villager had thorns armor."
+
+# This category is used if an entity killed a player using a special item.
+# It contains a map of death messages categorized by entity type and damage type.
+# Note: We didn't specify much here, so that the fallback messages from the
+#  entity death section are used if you don't specify anything.
+special_item_death:
+  default:
+    mob_attack:
+      - "%player% was slain by %attacker% using %item%."
+    arrow:
+      - "%player% was shot by %attacker% using %item%."
+    trident:
+      - "%player% was impailed by %attacker% using %item%."
+
+  player:
+    arrow:
+      - "%player% got shot by %attacker% using %item%."
+    fireworks:
+      - "%player% was blown away by the fireworks show %attacker% organized for them using %item%."
+    trident:
+      - "%attacker% brought %item% to their fight with %player%. In addition to working like a fork, it also helped them win."
+    player_attack:
+      - "%player% got beaten by %attacker% using %item%."
