@@ -46,10 +46,11 @@ natural_death:
     - message: "%player% tried to use a respawn anchor in the overworld."
       world_type: normal
     # If the player clicked on a respawn anchor in the nether
-    - message: "%player% discovered <click:open_url:'https://bugs.mojang.com/browse/MCPE-28723'>[Intentional Game Design]</click>"
+    # For all formatting options, see: https://docs.advntr.dev/minimessage/format.html
+    - message: "%player% discovered <click:open_url:'https://bugs.mojang.com/browse/MCPE-28723'><underlined><hover:show_text:'Click me'>[Intentional Game Design]</hover></underlined></click>"
       world_type: nether
     # If the player clicked on a respawn anchor in the end
-    - message: "%player% discovered <click:open_url:'https://bugs.mojang.com/browse/MCPE-28723'>[Intentional Game Design]</click>"
+    - message: "%player% discovered <click:open_url:'https://bugs.mojang.com/browse/MCPE-28723'><underlined><hover:show_text:'Click me'>[Intentional Game Design]</hover></underlined></click>"
       world_type: the_end
   
   cactus:
