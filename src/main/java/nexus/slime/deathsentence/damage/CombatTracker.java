@@ -10,7 +10,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,7 +25,7 @@ public class CombatTracker {
         return new CombatTracker(plugin, registry);
     }
 
-    public static final NamespacedKey DAMAGING_ENTITY_KEY = Objects.requireNonNull(NamespacedKey.fromString("deathsentence:damaging_entity"));
+    public static final NamespacedKey DAMAGING_ENTITY_KEY = new NamespacedKey("deathsentence", "damaging_entity");
 
     private final DeathSentencePlugin plugin;
     private final Registry<DamageType> damageTypeRegistry;
