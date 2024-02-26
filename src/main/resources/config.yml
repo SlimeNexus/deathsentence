@@ -109,6 +109,12 @@ natural_death:
 
   in_wall:
     - "Oh wow! That wall looks so interesting that %player% wanted to see it from the inside."
+
+  lava:
+    - "%player% didn't have too much fun playing the floor is lava!"
+
+  lightning_bolt:
+    - "%player% got to watch lightning from up close. Too close."
   
   magic:
     - "%player% had a magical (and deadly) experience."
