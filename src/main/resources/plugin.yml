@@ -5,8 +5,11 @@ name: DeathSentence
 description: An improved death messages plugin that tries to give as much control as possible, while providing reasonable fallbacks.
 version: $version
 authors:
-  - "Rodney_Mc_Kay"
-  - "Gizer"
+  - Rodney_Mc_Kay
+  - Gizer
+
+softdepend:
+  - PlaceholderAPI
 
 commands:
   deathsentence:

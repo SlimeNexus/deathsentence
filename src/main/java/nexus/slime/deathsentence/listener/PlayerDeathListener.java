@@ -76,34 +76,28 @@ public record PlayerDeathListener(
     }
 
     private Component constructChatMessage(DeathMessage message, Player player, DamageSource context) {
-        var actualMessage = message.message();
-
-        actualMessage = actualMessage.replaceText(TextReplacementConfig.builder()
-                .match("%player%")
-                .replacement(player.displayName())
-                .build());
+        var messagePlaceholders = plugin.getPlaceholderProvider()
+                .with("player", player.displayName());
 
         if (context.responsibleEntity() != null) {
-            actualMessage = actualMessage.replaceText(TextReplacementConfig.builder()
-                    .match("%attacker%")
-                    .replacement(context.responsibleEntity() instanceof Player cause
-                            ? cause.displayName()
-                            : context.responsibleEntity().name())
-                    .build());
+            var name = context.responsibleEntity() instanceof Player cause
+                    ? cause.displayName()
+                    : context.responsibleEntity().name();
+
+            messagePlaceholders = messagePlaceholders.with("attacker", name);
         }
 
         if (context.specialItem() != null) {
-            actualMessage = actualMessage.replaceText(TextReplacementConfig.builder()
-                    .match("%item%")
-                    .replacement(context.specialItem().displayName())
-                    .build());
+            messagePlaceholders = messagePlaceholders.with("item", context.specialItem().displayName());
         }
 
-        return plugin.getSettings().getMessageTemplate()
-                .replaceText(TextReplacementConfig.builder()
-                        .match("%message%")
-                        .replacement(actualMessage)
-                        .build());
+        var actualMessage = message.message().replaceText(messagePlaceholders.asReplacement(player));
+
+        return plugin.getSettings().getMessageTemplate().replaceText(
+                plugin.getPlaceholderProvider()
+                        .with("message", actualMessage)
+                        .asReplacement(player)
+        );
     }
 
     private DeathMessage findDeathMessage(Player player, DamageSource context, Component fallback) {

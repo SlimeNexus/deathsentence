@@ -6,6 +6,8 @@ import nexus.slime.deathsentence.listener.PlayerDeathListener;
 import nexus.slime.deathsentence.nms.FallbackNms;
 import nexus.slime.deathsentence.nms.Nms;
 import nexus.slime.deathsentence.nms.NmsProvider;
+import nexus.slime.deathsentence.placeholder.PlaceholderApiProvider;
+import nexus.slime.deathsentence.placeholder.PlaceholderProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -16,6 +18,7 @@ public class DeathSentencePlugin extends JavaPlugin {
     private Nms nms = null;
     private CombatTracker combatTracker = null;
     private Settings settings = null;
+    private PlaceholderProvider placeholderProvider = PlaceholderProvider.EMPTY;
 
     @Override
     public void onLoad() {
@@ -46,6 +49,11 @@ public class DeathSentencePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
         Objects.requireNonNull(getCommand("deathsentence")).setExecutor(new DeathSentenceCommand(this));
 
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            placeholderProvider = new PlaceholderApiProvider();
+            getLogger().info("Using PlaceholderAPI for placeholders!");
+        }
+
         getLogger().info("Plugin enabled!");
     }
 
@@ -64,6 +72,10 @@ public class DeathSentencePlugin extends JavaPlugin {
 
     public Settings getSettings() {
         return Objects.requireNonNull(settings);
+    }
+
+    public PlaceholderProvider getPlaceholderProvider() {
+        return placeholderProvider;
     }
 
     public void reloadSettings() throws IOException {
