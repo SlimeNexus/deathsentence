@@ -22,12 +22,7 @@ public class DeathSentencePlugin extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        nms = NmsProvider.findNms();
-
-        if (nms == null) {
-            getLogger().warning("Unsupported server version found! Some features of this plugin may not be working correctly on this version!");
-            nms = new FallbackNms();
-        }
+        nms = NmsProvider.findNms(this);
 
         getLogger().info("Using NmsAdapter: " + nms.getClass().getSimpleName());
 

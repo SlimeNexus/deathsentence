@@ -3,9 +3,9 @@ import java.io.ByteArrayOutputStream
 
 plugins {
     id("java")
-    id("io.papermc.paperweight.userdev") version "1.5.11" apply false
-    id("xyz.jpenilla.run-paper") version "2.2.3"
-    id("io.github.goooler.shadow") version "8.1.5"
+    id("io.papermc.paperweight.userdev") version "1.7.1" apply false
+    id("xyz.jpenilla.run-paper") version "2.3.0"
+    id("io.github.goooler.shadow") version "8.1.7"
 }
 
 group = "nexus.slime"
@@ -21,19 +21,19 @@ allprojects {
     }
 
     dependencies {
-        compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
-        compileOnly("me.clip:placeholderapi:2.11.5")
+        compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
+        compileOnly("me.clip:placeholderapi:2.11.6")
+    }
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
     }
 }
 
 // ---------------
 // Depend on NMS projects
-
-dependencies {
-    rootProject.project(":nms").subprojects.forEach {
-        implementation(project(it.path))
-    }
-}
 
 tasks {
     assemble {

@@ -179,6 +179,7 @@ public class Settings {
     private final Component messageTemplate;
     private final int cooldownSeconds;
     private final boolean logDeaths;
+    private final boolean disableExperimentalApi;
 
     private final NaturalDeathMessagePool naturalPool;
     private final EntityDeathMessagePool entityPool;
@@ -226,6 +227,10 @@ public class Settings {
         }
 
         specialItemPool = new EntityDeathMessagePool(readEntityDamageMessageMap(plugin, specialItemSection));
+
+        // Disable experimental API
+        disableExperimentalApi = config.isBoolean("disable_experimental_api")
+                && config.getBoolean("disable_experimental_api");
     }
 
     public Component getMessageTemplate() {
@@ -238,6 +243,10 @@ public class Settings {
 
     public boolean isLogDeaths() {
         return logDeaths;
+    }
+
+    public boolean isDisableExperimentalApi() {
+        return disableExperimentalApi;
     }
 
     public NaturalDeathMessagePool getNaturalPool() {

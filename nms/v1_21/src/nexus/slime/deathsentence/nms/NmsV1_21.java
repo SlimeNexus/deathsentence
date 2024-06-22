@@ -5,13 +5,13 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.damagesource.DamageType;
 import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Objects;
 
-public class NmsV1_19_4 implements Nms {
+public class NmsV1_21 implements Nms {
     private Registry<DamageType> getDamageTypeRegistry() {
         return MinecraftServer.getServer()
                 .registryAccess()
