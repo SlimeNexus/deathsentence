@@ -99,16 +99,20 @@ public class CombatTracker {
         }
 
         // Check for special items
-        if (responsibleEntity instanceof Mob mob) {
-            // TODO: This only really works if that weapon was actually used to attack.
-            //  (e.g. this currently also triggers when a player is killed by the thorns of another player)
-            //  Ways to make this more transparent to the user are either:
-            //  a) Add a configuration entry to specify which damage types are a mainhand attack
-            //  b) Add a warning if the user specifies "special_item_death.default.generic" in the config
-            var item = mob.getEquipment().getItemInMainHand();
+        if (responsibleEntity instanceof LivingEntity entity) {
+            var equipment = entity.getEquipment();
 
-            if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
-                specialItem = item;
+            if (equipment != null) {
+                // TODO: This only really works if that weapon was actually used to attack.
+                //  (e.g. this currently also triggers when a player is killed by the thorns of another player)
+                //  Ways to make this more transparent to the user are either:
+                //  a) Add a configuration entry to specify which damage types are a mainhand attack
+                //  b) Add a warning if the user specifies "special_item_death.default.generic" in the config
+                var item = entity.getEquipment().getItemInMainHand();
+
+                if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+                    specialItem = item;
+                }
             }
         }
 
